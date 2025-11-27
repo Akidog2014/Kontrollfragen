@@ -4,121 +4,239 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Kontrollformular</title>
-
 <style>
-body {
-    font-family: Arial, sans-serif;
-    margin: 20px;
-}
-.section {
-    margin-bottom: 20px;
-}
-button {
-    padding: 12px;
-    font-size: 18px;
-    margin-top: 10px;
-    width: 100%;
-}
-input, select {
-    padding: 10px;
-    width: 100%;
-    margin-top: 5px;
-}
-.hidden {
-    display: none;
-}
+body { font-family: Arial, sans-serif; margin: 20px; }
+.section { margin-bottom: 20px; }
+label { font-weight: bold; display:block; margin-top:10px; }
+input, textarea { padding: 8px; width: 100%; margin-top: 5px; }
+.hidden { display: none; }
+textarea { resize: vertical; }
+.radio-group { margin-top:5px; margin-bottom:5px; }
+.radio-group input { width:auto; margin-right:5px; }
+.sub-option { margin-left:25px; font-weight: normal; }
+button { padding:10px; font-size:16px; margin-top:5px; width:100%; }
 </style>
-
 <script>
-let alkoholZeit = "";
-let drogenZeit = "";
-
-function jetztDatumZeit() {
-    const jetzt = new Date();
-    const datum = jetzt.toLocaleDateString("de-CH");
-    const zeit = jetzt.toLocaleTimeString("de-CH", {hour: '2-digit', minute:'2-digit'});
-    return datum + " " + zeit;
+/* -------------------------
+  Geburtsdatum formatieren
+------------------------- */
+function formatGeburtsdatum(input) {
+    let v = input.value.replace(/\D/g,"");
+    if(v.length >= 2) v = v.slice(0,2) + "." + v.slice(2);
+    if(v.length >= 5) v = v.slice(0,5) + "." + v.slice(5,9);
+    input.value = v;
 }
 
+/* -------------------------
+  Alkohol Button
+------------------------- */
 function alkoholClicked() {
-    alkoholZeit = jetztDatumZeit();
     document.getElementById("alkohol-section").classList.remove("hidden");
+    const jetzt = new Date();
+    document.getElementById("alkohol-datum").value = jetzt.toLocaleDateString("de-CH");
+    document.getElementById("alkohol-zeit").value = jetzt.toLocaleTimeString("de-CH",{hour:'2-digit',minute:'2-digit'});
 }
 
+/* -------------------------
+  Drogen Button
+------------------------- */
 function drogenClicked() {
-    drogenZeit = jetztDatumZeit();
     document.getElementById("drogen-section").classList.remove("hidden");
+    const jetzt = new Date();
+    document.getElementById("drogen-datum").value = jetzt.toLocaleDateString("de-CH");
+    document.getElementById("drogen-zeit").value = jetzt.toLocaleTimeString("de-CH",{hour:'2-digit',minute:'2-digit'});
 }
 
+/* -------------------------
+  Positiv Checkbox Drogen
+------------------------- */
+function drogenPositivChanged() {
+    const pos = document.getElementById("drogen-pos").checked;
+    document.getElementById("drogen-checklist").classList.toggle("hidden", !pos);
+}
+
+/* -------------------------
+  Ja/Nein Fragen Textfeld ein/aus
+------------------------- */
+function toggleTextfield(qid) {
+    const jaRadio = document.getElementById(qid + "-ja");
+    const textarea = document.getElementById(qid + "-textarea");
+    textarea.classList.toggle("hidden", !jaRadio.checked);
+}
+
+/* -------------------------
+  E-Mail senden
+------------------------- */
 function sendeEmail() {
     const name = document.getElementById("name").value;
     const vorname = document.getElementById("vorname").value;
     const geburtsdatum = document.getElementById("geburtsdatum").value;
 
     let text = "Kontrollformular%0D%0A%0D%0A";
-    text += "Name: " + name + "%0D%0A";
-    text += "Vorname: " + vorname + "%0D%0A";
-    text += "Geburtsdatum: " + geburtsdatum + "%0D%0A%0D%0A";
+    text += "Name: "+name+"%0D%0A";
+    text += "Vorname: "+vorname+"%0D%0A";
+    text += "Geburtsdatum: "+geburtsdatum+"%0D%0A%0D%0A";
 
     // Alkohol
-    const alkWert = document.getElementById("alkoholwert").value;
-    if (alkoholZeit !== "") {
-        text += "Alkoholkontrolle:%0D%0A";
-        text += "Zeit: " + alkoholZeit + "%0D%0A";
-        text += "Wert: " + alkWert + "%0D%0A%0D%0A";
+    if(!document.getElementById("alkohol-section").classList.contains("hidden")){
+        const datum = document.getElementById("alkohol-datum").value;
+        const zeit = document.getElementById("alkohol-zeit").value;
+        const wert = document.getElementById("alkoholwert").value;
+        text += "Alkoholkontrolle:%0D%0ADatum: "+datum+"%0D%0AZeit: "+zeit+"%0D%0AWert: "+wert+"%0D%0A%0D%0A";
     }
 
     // Drogen
-    const drogenPos = document.getElementById("drogen-pos").checked;
-    const drogenNeg = document.getElementById("drogen-neg").checked;
-
-    if (drogenZeit !== "") {
-        text += "Drogenkontrolle:%0D%0A";
-        text += "Zeit: " + drogenZeit + "%0D%0A";
-        if (drogenPos) text += "Resultat: positiv%0D%0A";
-        if (drogenNeg) text += "Resultat: negativ%0D%0A";
+    if(!document.getElementById("drogen-section").classList.contains("hidden")){
+        const datum = document.getElementById("drogen-datum").value;
+        const zeit = document.getElementById("drogen-zeit").value;
+        text += "Drogenkontrolle:%0D%0ADatum: "+datum+"%0D%0AZeit: "+zeit+"%0D%0A";
+        if(document.getElementById("drogen-pos").checked){
+            text += "Resultat: positiv%0D%0A";
+            const drogenArten = ["can","benzo","amp","kok","opi"];
+            let any = false;
+            drogenArten.forEach(d => {
+                const el = document.getElementById("drogen-"+d);
+                if(el.checked){
+                    text += "- "+el.nextSibling.textContent.trim()+"%0D%0A";
+                    any = true;
+                }
+            });
+            if(!any) text += "(Keine Substanzen ausgewählt)%0D%0A";
+            text += "%0D%0A";
+        }
+        if(document.getElementById("drogen-neg").checked) text += "Resultat: negativ%0D%0A%0D%0A";
     }
 
-    // Mail öffnen
-    window.location.href = "mailto:?subject=Kontrollformular&body=" + text;
+    // Weitere Fragen
+    const fragen = [
+        {id:"krankheit", text:"Leiden Sie gegenwärtig an einer Krankheit?"},
+        {id:"aerztliche", text:"Waren Sie in letzter Zeit in regelmäßiger ärztlicher Behandlung?"},
+        {id:"medikamente", text:"Benötigen Sie Medikamente?"},
+        {id:"weiterepersonen", text:"Möchten Sie, dass wir weitere Personen über Ihre Festnahme informieren?"},
+        {id:"personen_notlage", text:"Befinden sich Personen in Ihrer Obhut, welche ohne Ihre Anwesenheit in eine Notlage geraten?"},
+        {id:"tiere_notlage", text:"Befinden sich Tiere in Ihrer Obhut, welche ohne Ihre Anwesenheit in eine Notlage geraten?"},
+        {id:"dringend", text:"Müssen Sie etwas Dringendes erledigen?"}
+    ];
+
+    fragen.forEach(f => {
+        const ja = document.getElementById(f.id+"-ja").checked;
+        const nein = document.getElementById(f.id+"-nein").checked;
+        text += f.text + ": " + (ja?"Ja":(nein?"Nein":"Keine Angabe")) + "%0D%0A";
+        const extra = document.getElementById(f.id+"-textarea");
+        if(ja && extra && extra.value.trim()!="") text += "Details: "+extra.value+"%0D%0A";
+        text += "%0D%0A";
+    });
+
+    window.location.href = "mailto:?subject=Kontrollformular&body="+text;
 }
 </script>
 </head>
-
 <body>
 
 <h2>Kontrollformular</h2>
 
 <div class="section">
-    <label>Nachname:</label>
-    <input type="text" id="name">
-
-    <label>Vorname:</label>
-    <input type="text" id="vorname">
-
-    <label>Geburtsdatum:</label>
-    <input type="date" id="geburtsdatum">
+<label>Nachname:</label>
+<input type="text" id="name">
+<label>Vorname:</label>
+<input type="text" id="vorname">
+<label>Geburtsdatum (TTMMJJJJ):</label>
+<input type="text" id="geburtsdatum" maxlength="10" placeholder="13.03.1982" oninput="formatGeburtsdatum(this)">
 </div>
 
-<!-- Buttons -->
 <button onclick="alkoholClicked()">Alkohol</button>
-<button onclick="drogenClicked()">Drogen</button>
-
-<!-- Alkohol-Eingabe -->
 <div id="alkohol-section" class="section hidden">
-    <h3>Alkoholwert eingeben</h3>
-    <label>Wert (z.B. 0.5):</label>
-    <input type="number" id="alkoholwert" step="0.01">
+<label>Datum:</label><input type="text" id="alkohol-datum">
+<label>Zeit:</label><input type="text" id="alkohol-zeit">
+<label>Alkoholwert:</label><input type="number" id="alkoholwert" step="0.01">
 </div>
 
-<!-- Drogen-Eingabe -->
+<button onclick="drogenClicked()">Drogen</button>
 <div id="drogen-section" class="section hidden">
-    <h3>Drogenkontrolle</h3>
-    <label><input type="checkbox" id="drogen-pos"> positiv</label><br>
-    <label><input type="checkbox" id="drogen-neg"> negativ</label>
+<label>Datum:</label><input type="text" id="drogen-datum">
+<label>Zeit:</label><input type="text" id="drogen-zeit">
+<label><input type="checkbox" id="drogen-pos" onclick="drogenPositivChanged()"> positiv</label>
+<label><input type="checkbox" id="drogen-neg"> negativ</label>
+
+<div id="drogen-checklist" class="hidden">
+<label class="sub-option"><input type="checkbox" id="drogen-can"> Cannabis</label>
+<label class="sub-option"><input type="checkbox" id="drogen-benzo"> Benzodiazepine</label>
+<label class="sub-option"><input type="checkbox" id="drogen-amp"> Amphetamine</label>
+<label class="sub-option"><input type="checkbox" id="drogen-kok"> Kokain</label>
+<label class="sub-option"><input type="checkbox" id="drogen-opi"> Opiate</label>
+</div>
 </div>
 
-<button onclick="sendeEmail()" style="background-color:#28a745; color:white;">E-Mail senden</button>
+<div class="section">
+<h3>Weitere Fragen</h3>
+
+<!-- Alle Fragen mit Radio-Buttons -->
+<div>
+<label>Leiden Sie gegenwärtig an einer Krankheit?</label>
+<div class="radio-group">
+<input type="radio" name="krankheit" id="krankheit-ja" value="ja" onchange="toggleTextfield('krankheit')"> Ja
+<input type="radio" name="krankheit" id="krankheit-nein" value="nein" onchange="toggleTextfield('krankheit')"> Nein
+</div>
+<textarea id="krankheit-textarea" class="hidden" rows="3" placeholder="Bitte beschreiben..."></textarea>
+</div>
+
+<div>
+<label>Waren Sie in letzter Zeit in regelmäßiger ärztlicher Behandlung?</label>
+<div class="radio-group">
+<input type="radio" name="aerztliche" id="aerztliche-ja" value="ja" onchange="toggleTextfield('aerztliche')"> Ja
+<input type="radio" name="aerztliche" id="aerztliche-nein" value="nein" onchange="toggleTextfield('aerztliche')"> Nein
+</div>
+<textarea id="aerztliche-textarea" class="hidden" rows="3" placeholder="Bitte beschreiben..."></textarea>
+</div>
+
+<div>
+<label>Benötigen Sie Medikamente?</label>
+<div class="radio-group">
+<input type="radio" name="medikamente" id="medikamente-ja" value="ja" onchange="toggleTextfield('medikamente')"> Ja
+<input type="radio" name="medikamente" id="medikamente-nein" value="nein" onchange="toggleTextfield('medikamente')"> Nein
+</div>
+<textarea id="medikamente-textarea" class="hidden" rows="3" placeholder="Bitte beschreiben..."></textarea>
+</div>
+
+<div>
+<label>Möchten Sie, dass wir weitere Personen über Ihre Festnahme informieren?</label>
+<div class="radio-group">
+<input type="radio" name="weiterepersonen" id="weiterepersonen-ja" value="ja" onchange="toggleTextfield('weiterepersonen')"> Ja
+<input type="radio" name="weiterepersonen" id="weiterepersonen-nein" value="nein" onchange="toggleTextfield('weiterepersonen')"> Nein
+</div>
+<textarea id="weiterepersonen-textarea" class="hidden" rows="3" placeholder="Bitte beschreiben..."></textarea>
+</div>
+
+<div>
+<label>Befinden sich Personen in Ihrer Obhut, welche ohne Ihre Anwesenheit in eine Notlage geraten?</label>
+<div class="radio-group">
+<input type="radio" name="personen_notlage" id="personen_notlage-ja" value="ja" onchange="toggleTextfield('personen_notlage')"> Ja
+<input type="radio" name="personen_notlage" id="personen_notlage-nein" value="nein" onchange="toggleTextfield('personen_notlage')"> Nein
+</div>
+<textarea id="personen_notlage-textarea" class="hidden" rows="3" placeholder="Bitte beschreiben..."></textarea>
+</div>
+
+<div>
+<label>Befinden sich Tiere in Ihrer Obhut, welche ohne Ihre Anwesenheit in eine Notlage geraten?</label>
+<div class="radio-group">
+<input type="radio" name="tiere_notlage" id="tiere_notlage-ja" value="ja" onchange="toggleTextfield('tiere_notlage')"> Ja
+<input type="radio" name="tiere_notlage" id="tiere_notlage-nein" value="nein" onchange="toggleTextfield('tiere_notlage')"> Nein
+</div>
+<textarea id="tiere_notlage-textarea" class="hidden" rows="3" placeholder="Bitte beschreiben..."></textarea>
+</div>
+
+<div>
+<label>Müssen Sie etwas Dringendes erledigen?</label>
+<div class="radio-group">
+<input type="radio" name="dringend" id="dringend-ja" value="ja" onchange="toggleTextfield('dringend')"> Ja
+<input type="radio" name="dringend" id="dringend-nein" value="nein" onchange="toggleTextfield('dringend')"> Nein
+</div>
+<textarea id="dringend-textarea" class="hidden" rows="3" placeholder="Bitte beschreiben..."></textarea>
+</div>
+
+</div>
+
+<button onclick="sendeEmail()" style="background-color:#28a745;color:white;">E-Mail senden</button>
 
 </body>
 </html>
