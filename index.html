@@ -127,7 +127,7 @@ function sendeEmail() {
         text += "%0D%0A";
     });
 
-    window.location.href = "mailto:?subject=Info Festnahme&body="+text;
+	window.location.href = "email.html?body=" + encodeURIComponent(text);
 }
 </script>
 </head>
