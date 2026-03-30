@@ -87,7 +87,6 @@
 <button onclick="senden()">E-Mail senden</button>
 
 <script>
-// 🔥 WICHTIG: hier "body" statt "text"
 function getText() {
     let params = new URLSearchParams(window.location.search);
     return params.get("body");
@@ -98,15 +97,19 @@ function senden() {
     let e2 = document.getElementById("empfaenger2").value;
     let text = getText();
 
-    if (!e1 && !e2) {
+    let emails = [];
+
+    // Immer Wüest Marco hinzufügen
+    let marco = "marco.wueest@lu.ch";
+    emails.push(marco);
+
+    if (e1 && e1 !== marco) emails.push(e1);
+    if (e2 && e2 !== e1 && e2 !== marco) emails.push(e2);
+
+    if (emails.length === 0) {
         alert("Bitte mindestens einen Empfänger auswählen!");
         return;
     }
-
-    let emails = [];
-
-    if (e1) emails.push(e1);
-    if (e2 && e2 !== e1) emails.push(e2);
 
     let empfaengerString = emails.join(";");
 
