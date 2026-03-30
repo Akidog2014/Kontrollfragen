@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Empfänger wählen</title>
+
+<style>
+    body { font-family: Arial; padding: 20px; }
+    select, button { padding: 10px; width: 100%; margin-top: 10px; }
+</style>
+</head>
+
+<body>
+
+<h2>Empfänger auswählen</h2>
+
+<label>Empfänger 1:</label>
+<select id="empfaenger1">
+    <option value="">-- Bitte wählen --</option>
+    <option value="marco.wueest@lu.ch">Wüest Marco</option>
+    <option value="christof.hufschmid@lu.ch">Hufschmid Christof</option>
+    <option value="marcel.ulrich@lu.ch">Ulrich Marcel</option>
+    <option value="flavio.kneubuehler@lu.ch">Kneubühler Flavio</option>
+    <option value="lisa.marthaler@lu.ch">Marthaler Lisa</option>
+    <option value="ernest.heggli@lu.ch">Heggli Ernest</option>
+    <option value="gabriele.milli@lu.ch">Milli Gabriele</option>
+    <option value="sebastian.harnisch@lu.ch">Harnisch Sebastian</option>
+    <option value="naja.niederberger@lu.ch">Niederberger Naja</option>
+    <option value="sara.grueter@lu.ch">Grüter Sara</option>
+    <option value="rahel.waldvogel@lu.ch">Waldvogel Rahel</option>
+    <option value="timon.boscardin@lu.ch">Boscardin Timon</option>
+    <option value="michael.eichhorn@lu.ch">Eichhorn Michael</option>
+    <option value="roman.holdener@lu.ch">Holdener Roman</option>
+    <option value="lorena.iseni@lu.ch">Iseni Lorena</option>
+    <option value="patrick.barmet@lu.ch">Barmet Patrick</option>
+    <option value="luca.wechsler@lu.ch">Wechsler Luca</option>
+    <option value="michael.odermatt@lu.ch">Odermatt Michael</option>
+    <option value="nicholas.sidler@lu.ch">Sidler Nicholas</option>
+    <option value="fabienne.gisler@lu.ch">Gisler Fabienne</option>
+    <option value="martina.csernay@lu.ch">Csernay Martina</option>
+    <option value="benjamin.rutschmann@lu.ch">Rutschmann Benjamin</option>
+    <option value="raffaele.gisler@lu.ch">Gisler Rafffaele</option>
+    <option value="noah.kaufmann@lu.ch">Kaufmann Noah</option>
+    <option value="giuseppe.gioia@lu.ch">Gioia Giuseppe</option>
+    <option value="martin.schacher@lu.ch">Schacher Martin</option>
+    <option value="kurt.lustenberger@lu.ch">Lustenberger Kurt</option>
+    <option value="philipp.steinger@lu.ch">Steinger Philipp</option>
+    <option value="samuel.bigler@lu.ch">Bigler Samuel</option>
+</select>
+
+<label>Empfänger 2:</label>
+<select id="empfaenger2">
+    <option value="">-- Optional --</option>
+    <!-- gleiche Liste wie oben -->
+    <option value="marco.wueest@lu.ch">Wüest Marco</option>
+    <option value="christof.hufschmid@lu.ch">Hufschmid Christof</option>
+    <option value="marcel.ulrich@lu.ch">Ulrich Marcel</option>
+    <option value="flavio.kneubuehler@lu.ch">Kneubühler Flavio</option>
+    <option value="lisa.marthaler@lu.ch">Marthaler Lisa</option>
+    <option value="ernest.heggli@lu.ch">Heggli Ernest</option>
+    <option value="gabriele.milli@lu.ch">Milli Gabriele</option>
+    <option value="sebastian.harnisch@lu.ch">Harnisch Sebastian</option>
+    <option value="naja.niederberger@lu.ch">Niederberger Naja</option>
+    <option value="sara.grueter@lu.ch">Grüter Sara</option>
+    <option value="rahel.waldvogel@lu.ch">Waldvogel Rahel</option>
+    <option value="timon.boscardin@lu.ch">Boscardin Timon</option>
+    <option value="michael.eichhorn@lu.ch">Eichhorn Michael</option>
+    <option value="roman.holdener@lu.ch">Holdener Roman</option>
+    <option value="lorena.iseni@lu.ch">Iseni Lorena</option>
+    <option value="patrick.barmet@lu.ch">Barmet Patrick</option>
+    <option value="luca.wechsler@lu.ch">Wechsler Luca</option>
+    <option value="michael.odermatt@lu.ch">Odermatt Michael</option>
+    <option value="nicholas.sidler@lu.ch">Sidler Nicholas</option>
+    <option value="fabienne.gisler@lu.ch">Gisler Fabienne</option>
+    <option value="martina.csernay@lu.ch">Csernay Martina</option>
+    <option value="benjamin.rutschmann@lu.ch">Rutschmann Benjamin</option>
+    <option value="raffaele.gisler@lu.ch">Gisler Rafffaele</option>
+    <option value="noah.kaufmann@lu.ch">Kaufmann Noah</option>
+    <option value="giuseppe.gioia@lu.ch">Gioia Giuseppe</option>
+    <option value="martin.schacher@lu.ch">Schacher Martin</option>
+    <option value="kurt.lustenberger@lu.ch">Lustenberger Kurt</option>
+    <option value="philipp.steinger@lu.ch">Steinger Philipp</option>
+    <option value="samuel.bigler@lu.ch">Bigler Samuel</option>
+</select>
+
+<button onclick="senden()">E-Mail senden</button>
+
+<script>
+// 🔥 WICHTIG: hier "body" statt "text"
+function getText() {
+    let params = new URLSearchParams(window.location.search);
+    return params.get("body");
+}
+
+function senden() {
+    let e1 = document.getElementById("empfaenger1").value;
+    let e2 = document.getElementById("empfaenger2").value;
+    let text = getText();
+
+    if (!e1 && !e2) {
+        alert("Bitte mindestens einen Empfänger auswählen!");
+        return;
+    }
+
+    let emails = [];
+
+    if (e1) emails.push(e1);
+    if (e2 && e2 !== e1) emails.push(e2);
+
+    let empfaengerString = emails.join(";");
+
+    window.location.href =
+        "mailto:" + empfaengerString +
+        "?subject=Info Festnahme&body=" + text;
+}
+</script>
+
+</body>
+</html>
